@@ -1,0 +1,48 @@
+.familyTreeContainer {
+  position: relative;
+  overflow: auto; // Enable scrolling for large trees
+  padding: 20px;
+  min-height: 100vh; // Occupy full viewport height
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8f9fa; // Light background
+
+  // Basic styling for tree levels (conceptual layout)
+  .treeLevel {
+    display: flex;
+    justify-content: center;
+    gap: 40px; // Space between nodes at the same level
+    margin-bottom: 50px; // Space between levels
+    flex-wrap: wrap; // Allow wrapping for many nodes
+  }
+
+  .nodeWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .childrenContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .spousesContainer {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      margin-top: 10px; // Space between main person and spouse
+  }
+
+  // Placeholder for connector styling (actual connectors would be SVG)
+  .connector {
+    position: absolute;
+    stroke: #ccc;
+    stroke-width: 2px;
+    z-index: 1; // Ensure connectors are behind nodes
+  }
+}
