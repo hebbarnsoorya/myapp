@@ -1,0 +1,20 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sidebar-width-expanded: 16rem; /* 256px */
+  --sidebar-width-collapsed: 5rem;  /* 80px */
+}
+
+/* You might need to add this for your custom calc() to work correctly */
+/* This is a Vite-specific solution */
+@layer utilities {
+  .w-sidebar-expanded {
+    width: var(--sidebar-width-expanded);
+  }
+  .w-sidebar-collapsed {
+    width: var(--sidebar-width-collapsed);
+  }
+}
