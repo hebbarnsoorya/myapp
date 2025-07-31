@@ -1,39 +1,30 @@
 // src/App.tsx
-import { useState } from 'react';
-import Header from './components/Header/Header';
-import Sidebar from './components/Sidebar/Sidebar';
-import Footer from './components/Footer/Footer';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Buttons from './pages/Buttons';
+import Inputs from './pages/Inputs';
+import Dropdown from './pages/Dropdown';
+import Reports from './pages/Reports';
+import Cards from './pages/Cards';
+import Charts from './pages/Charts';
 
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Changed initial state to false
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar isOpen={isSidebarOpen} />
-
-      <Header onToggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
-
-      <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? 'md:ml-[var(--sidebar-width-expanded)]' : 'md:ml-[var(--sidebar-width-collapsed)]'
-        } ml-0 mt-16`}
-      >
-        <main className="p-8">
-          <div className="p-6 bg-white rounded-lg shadow-md">
-            <h1 className="text-2xl font-bold">Welcome to the Dashboard!</h1>
-            <p className="mt-4 text-gray-600">
-              This is the main content area of your application.
-            </p>
-          </div>
-        </main>
-
-        <Footer isSidebarOpen={isSidebarOpen} />
-      </div>
-    </div>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/buttons" element={<Buttons />} />
+          <Route path="/inputs" element={<Inputs />} />
+          <Route path="/dropdown" element={<Dropdown />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/cards" element={<Cards />} />
+          <Route path="/charts" element={<Charts />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
 }
 
