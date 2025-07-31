@@ -8,23 +8,30 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen bg-gray-800 text-white transition-all duration-300 ease-in-out z-40 ${
-        isOpen ? 'md:w-[var(--sidebar-width-expanded)]' : 'md:w-[var(--sidebar-width-collapsed)]'
-      } w-0 md:w-20`}
+      className={`fixed top-0 left-0 h-screen bg-gray-800 text-white z-40 transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0
+        ${isOpen ? 'w-[var(--sidebar-width-expanded)]' : 'md:w-[var(--sidebar-width-collapsed)]'}
+        w-[var(--sidebar-width-expanded)]
+      `}
     >
       <div className="flex items-center justify-center h-16 bg-gray-900">
-        {/* Full logo for expanded state */}
-        <img
-          src="http://googleusercontent.com/image_collection/image_retrieval/6774192837850646127_0"
-          alt="App Logo"
-          className={`h-10 transition-opacity duration-300 ${isOpen ? 'block' : 'hidden'}`}
-        />
-        {/* Rounded logo for collapsed state */}
-        <img
-          src="http://googleusercontent.com/image_collection/image_retrieval/17733248895156120188_0"
-          alt="App Logo"
-          className={`h-10 transition-opacity duration-300 ${isOpen ? 'hidden' : 'block'}`}
-        />
+        {/* Only show the full logo when the sidebar is open */}
+        {isOpen && (
+          <img
+            src="http://googleusercontent.com/image_collection/image_retrieval/6774192837850646127_0"
+            alt="App Logo"
+            className="h-10 transition-opacity duration-300"
+          />
+        )}
+        {/* Only show the short logo when the sidebar is not open */}
+        {!isOpen && (
+          <img
+            src="http://googleusercontent.com/image_collection/image_retrieval/17733248895156120188_0"
+            alt="App Logo"
+            className="h-10 transition-opacity duration-300"
+          />
+        )}
       </div>
       <nav className="mt-8">
         <ul>
@@ -44,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
               </span>
             </a>
           </li>
-          {/* Add more menu items here */}
         </ul>
       </nav>
     </aside>

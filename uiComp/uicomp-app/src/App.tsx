@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import Footer from './components/Footer/Footer';
 
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Changed initial state to false
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

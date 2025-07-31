@@ -1,5 +1,5 @@
 // src/components/Header/Header.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -12,20 +12,63 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }) => {
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
 
-  // A function to close all dropdowns, useful for a clean UI
-  const closeAllDropdowns = () => {
-    setIsProfileDropdownOpen(false);
-    setIsNotificationsOpen(false);
-    setIsMessagesOpen(false);
-    setIsAlertsOpen(false);
-  };
+  // Create refs to reference each dropdown container
+  const profileRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const alertsRef = useRef<HTMLDivElement>(null);
+
+  // Effect to handle clicks outside the dropdowns
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      // Check if the click is outside of ALL dropdown containers
+      if (
+        profileRef.current && !profileRef.current.contains(event.target as Node) &&
+        notificationsRef.current && !notificationsRef.current.contains(event.target as Node) &&
+        messagesRef.current && !messagesRef.current.contains(event.target as Node) &&
+        alertsRef.current && !alertsRef.current.contains(event.target as Node)
+      ) {
+        // If it is, close all of them
+        setIsProfileDropdownOpen(false);
+        setIsNotificationsOpen(false);
+        setIsMessagesOpen(false);
+        setIsAlertsOpen(false);
+      }
+    };
+
+    // Add event listener when the component mounts
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []); // The empty dependency array ensures this effect runs only once
 
   const handleDropdownToggle = (dropdown: string) => {
-    closeAllDropdowns();
-    if (dropdown === 'profile') setIsProfileDropdownOpen(!isProfileDropdownOpen);
-    if (dropdown === 'notifications') setIsNotificationsOpen(!isNotificationsOpen);
-    if (dropdown === 'messages') setIsMessagesOpen(!isMessagesOpen);
-    if (dropdown === 'alerts') setIsAlertsOpen(!isAlertsOpen);
+    // When a dropdown is toggled, first close all others, then toggle the current one.
+    // This is a much cleaner way to manage state.
+    if (dropdown === 'profile') {
+      setIsProfileDropdownOpen(!isProfileDropdownOpen);
+      setIsNotificationsOpen(false);
+      setIsMessagesOpen(false);
+      setIsAlertsOpen(false);
+    } else if (dropdown === 'notifications') {
+      setIsNotificationsOpen(!isNotificationsOpen);
+      setIsProfileDropdownOpen(false);
+      setIsMessagesOpen(false);
+      setIsAlertsOpen(false);
+    } else if (dropdown === 'messages') {
+      setIsMessagesOpen(!isMessagesOpen);
+      setIsProfileDropdownOpen(false);
+      setIsNotificationsOpen(false);
+      setIsAlertsOpen(false);
+    } else if (dropdown === 'alerts') {
+      setIsAlertsOpen(!isAlertsOpen);
+      setIsProfileDropdownOpen(false);
+      setIsNotificationsOpen(false);
+      setIsMessagesOpen(false);
+    }
   };
 
   const headerWidth = isSidebarOpen
@@ -69,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }) => {
       {/* Right-hand side menu with dropdowns */}
       <div className="flex items-center space-x-4 relative">
         {/* Notifications Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={notificationsRef}>
           <button onClick={() => handleDropdownToggle('notifications')} className="text-gray-600 focus:outline-none relative">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405C18.895 14.895 19 14.2 19 13v-3a6 6 0 00-6-6H9a6 6 0 00-6 6v3c0 1.2.105 1.895.405 2.595L2 17h5m-2 0h14a2 2 0 002-2v-3a8 8 0 00-8-8H9a8 8 0 00-8 8v3a2 2 0 002 2z"></path>
@@ -91,7 +134,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }) => {
         </div>
 
         {/* Messages Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={messagesRef}>
           <button onClick={() => handleDropdownToggle('messages')} className="text-gray-600 focus:outline-none">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path>
@@ -111,7 +154,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }) => {
         </div>
 
         {/* Alerts Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={alertsRef}>
           <button onClick={() => handleDropdownToggle('alerts')} className="text-gray-600 focus:outline-none">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -128,7 +171,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }) => {
         </div>
 
         {/* Profile dropdown */}
-        <div className="relative">
+        <div className="relative" ref={profileRef}>
           <button onClick={() => handleDropdownToggle('profile')} className="flex items-center space-x-2 focus:outline-none">
             <img
               src="http://googleusercontent.com/image_collection/image_retrieval/16284323225662736436_0"
