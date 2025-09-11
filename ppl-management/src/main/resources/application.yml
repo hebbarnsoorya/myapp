@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: ppl-management
+
+  # Zipkin config
+  zipkin:
+    base-url: http://localhost:9411   # Zipkin server
+    enabled: true
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-exception: false
+    whitelabel.enabled: false
+
+  profiles:
+    active: dev   # default profile, override with: -Dspring.profiles.active=prod
+
+
+
+# Logging enrichment with traceId/spanId
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"
+  file:
+    name: logs/ppl-management.log
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+    prometheus:
+      enabled: true
+
+  tracing:
+    sampling:
+      probability: 1.0   # 100% trace sampling (reduce to 0.1 in prod)
+
+  metrics:
+    tags:
+      application: ppl-management
+
+
+
