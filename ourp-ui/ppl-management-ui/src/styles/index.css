@@ -1,0 +1,18 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+--brand-primary: #fc820f;
+--brand-accent: #fcfc0f;
+--header-height: 64px;
+--sidebar-width: 280px;
+--sidebar-width-collapsed: 80px;
+--radius: 1rem;
+}
+
+
+.brand-gradient {
+background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+}
