@@ -1,6 +1,7 @@
 ﻿import React from 'react';
-import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-
+import Badge from '@/components/ui/Badge';
+import { useApp } from '@/store/AppContext';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
 const data = Array.from({ length: 24 }).map((_, i) => ({
   hour: ${i}:00,
   value: Math.round(20 + Math.sin(i/3) * 15 + Math.random() * 10),
