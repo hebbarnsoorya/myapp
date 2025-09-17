@@ -1,4 +1,4 @@
-﻿import type { AppAction, AppState } from '@/types';
+﻿import type { AppAction, AppState } from '../types';
 
 
 export const initialState: AppState = {

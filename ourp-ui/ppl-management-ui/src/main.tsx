@@ -6,12 +6,13 @@ import App from './App';
 import '@/styles/index.css';
 import '@/styles/theme.scss';
 
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AppProvider>
-        <App />
-      </AppProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
+<React.StrictMode>
+<BrowserRouter>
+<AppProvider>
+<App />
+</AppProvider>
+</BrowserRouter>
+</React.StrictMode>,
 );

@@ -1,26 +1,27 @@
 {
-"compilerOptions": {
-"target": "ES2020",
-"useDefineForClassFields": true,
-"lib": ["ES2020", "DOM", "DOM.Iterable"],
-"module": "ESNext",
-"skipLibCheck": true,
-"moduleResolution": "bundler",
-"resolveJsonModule": true,
-"isolatedModules": true,
-"noEmit": true,
-"jsx": "react-jsx",
-"strict": true,
-"baseUrl": ".",
-"paths": {
-"@/components/*": ["src/components/*"],
-"@/pages/*": ["src/pages/*"],
-"@/hooks/*": ["src/hooks/*"],
-"@/lib/*": ["src/lib/*"],
-"@/services/*": ["src/services/*"],
-"@/store/*": ["src/store/*"],
-"@/types/*": ["src/types/*"]
-}
-},
-"include": ["src", "setupTests.ts", "__tests__"]
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/pages/*": ["src/pages/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/services/*": ["src/services/*"],
+      "@/store/*": ["src/store/*"],
+      "@/types/*": ["src/types/*"]
+    }
+  },
+  "include": ["src", "setupTests.ts", "__tests__", "public/__tests__"]
 }

@@ -1,6 +1,6 @@
 ﻿import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import { appReducer, initialState } from './appReducer';
-import type { AppAction, AppState, Theme } from '@/types';
+import type { AppAction, AppState, Theme } from '../types';
 import useLocalStorage from '@/hooks/useLocalStorage';
 
 
@@ -11,6 +11,7 @@ const AppContext = createContext<AppContextValue | null>(null);
 export default AppContext;
 
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApp() {
 const ctx = useContext(AppContext);
 if (!ctx) throw new Error('useApp must be used within AppProvider');

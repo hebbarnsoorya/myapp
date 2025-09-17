@@ -20,13 +20,16 @@ useRequest(interceptor: RequestInterceptor) { this.requestInterceptors.push(inte
 useResponse(interceptor: ResponseInterceptor) { this.responseInterceptors.push(interceptor); }
 
 
-async request(path: string, init: RequestInit = {}) {
-let input: RequestInfo = this.baseUrl + path;
-let config: RequestInit = { headers: { 'Content-Type': 'application/json' }, ...init };
-
-
+async request(path: string, init?: RequestInit) {
+  let input: RequestInfo = this.baseUrl + path;
+  let config: RequestInit | undefined = {
+    headers: { 'Content-Type': 'application/json' },
+    ...(init || {}),
+  };
 for (const i of this.requestInterceptors) {
 [input, config] = await i(input, config);
+
+
 }
 
 
