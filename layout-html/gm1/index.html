@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard UI</title>
+    <link href="./dist/tailwind.css" rel="stylesheet" />
+    <link href="./dist/styles.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div class="flex h-screen">
+      <aside
+        id="sidebar"
+        class="w-64 bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 ease-in-out flex flex-col"
+      >
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <a href="#" class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-full bg-[#fc820f]"></div>
+            <span class="text-xl font-bold dark:text-white">Org. Name</span>
+          </a>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+          <a
+            href="#"
+            class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            <i class="fas fa-home text-lg"></i>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center space-x-4 p-3 rounded-lg bg-[#fc820f] text-white"
+          >
+            <i class="fas fa-chart-line text-lg"></i>
+            <span>Analytics</span>
+          </a>
+          </nav>
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            id="toggle-theme"
+            class="w-full flex items-center justify-center space-x-2 p-3 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          >
+            <i class="fas fa-moon text-lg"></i>
+            <span class="font-medium">Switch Theme</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="flex-1 overflow-y-auto">
+        <header
+          class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center sticky top-0 z-10"
+        >
+          <div class="flex items-center space-x-4">
+            <button id="toggle-sidebar" class="text-gray-600 dark:text-gray-400">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+            <nav class="flex space-x-6 hidden sm:flex">
+              <a
+                href="#"
+                class="text-gray-600 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >Home</a
+              >
+              <a
+                href="#"
+                class="text-gray-600 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >Reports</a
+              >
+              <div class="relative group">
+                <button
+                  class="flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >
+                  <span>Services</span>
+                  <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <div
+                  class="absolute hidden group-hover:block top-full mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md overflow-hidden z-20"
+                >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >Service 1</a
+                  >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >Service 2</a
+                  >
+                </div>
+              </div>
+            </nav>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <a href="#" class="relative text-gray-600 dark:text-gray-400 hover:text-orange-500">
+              <i class="fas fa-bell text-lg"></i>
+              <span
+                class="absolute -top-1 -right-1 w-4 h-4 text-xs font-bold bg-[#fcfc0f] text-gray-900 rounded-full flex items-center justify-center"
+                >3</span
+              >
+            </a>
+            <a href="#" class="relative text-gray-600 dark:text-gray-400 hover:text-orange-500">
+              <i class="fas fa-envelope text-lg"></i>
+              <span
+                class="absolute -top-1 -right-1 w-4 h-4 text-xs font-bold bg-[#fcfc0f] text-gray-900 rounded-full flex items-center justify-center"
+                >5</span
+              >
+            </a>
+
+            <div class="relative group">
+              <button class="flex items-center space-x-2">
+                <img
+                  src="https://via.placeholder.com/32"
+                  alt="User Avatar"
+                  class="w-8 h-8 rounded-full"
+                />
+                <span class="text-sm font-medium hidden sm:block">User Name</span>
+              </button>
+              <div
+                class="absolute hidden group-hover:block top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 shadow-lg rounded-md overflow-hidden z-20"
+              >
+                <a
+                  href="#"
+                  class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >Profile Settings</a
+                >
+                <a
+                  href="#"
+                  class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >Switch Role</a
+                >
+                <a
+                  href="#"
+                  class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >Logout</a
+                >
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-4">Total Revenue</h3>
+            <canvas id="revenue-chart" class="w-full h-64"></canvas>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-4">User Growth</h3>
+            <canvas id="growth-chart" class="w-full h-64"></canvas>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-4">Top Products</h3>
+            <canvas id="products-chart" class="w-full h-64"></canvas>
+          </div>
+          </main>
+
+        <footer
+          class="bg-white dark:bg-gray-800 text-center p-4 mt-6 text-sm text-gray-500 dark:text-gray-400"
+        >
+          <p>&copy; 2024 Your Organization. All Rights Reserved.</p>
+        </footer>
+      </div>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>

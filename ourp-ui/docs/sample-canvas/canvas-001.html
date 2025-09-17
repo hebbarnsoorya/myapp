@@ -1,0 +1,497 @@
+import React, { useMemo, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Bell,
+  AlertTriangle,
+  Mail,
+  Search,
+  Menu,
+  ChevronDown,
+  ChevronRight,
+  Sun,
+  Moon,
+  User,
+  LogIn,
+  LogOut,
+  Settings,
+  Languages,
+  Shield,
+  Building2,
+  Palette,
+  Activity,
+  BarChart3,
+  LineChart as LineChartIcon,
+  PieChart as PieChartIcon,
+  Home,
+  Layers,
+  Database,
+  FolderOpen,
+} from "lucide-react";
+import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+
+// --- Brand Colors (close to #fc820f and #fcfc0f) ---
+const BRAND_ORANGE = "#fc820f"; // primary
+const BRAND_YELLOW = "#fcfc0f"; // accent
+const BRAND_ORANGE_DARK = "#ef6f00"; // darker shade for hover
+
+// --- Mock data for charts ---
+const kpiData = [
+  { name: "Mon", value: 120, secondary: 90 },
+  { name: "Tue", value: 200, secondary: 160 },
+  { name: "Wed", value: 150, secondary: 120 },
+  { name: "Thu", value: 260, secondary: 180 },
+  { name: "Fri", value: 180, secondary: 140 },
+  { name: "Sat", value: 220, secondary: 170 },
+  { name: "Sun", value: 190, secondary: 150 },
+];
+
+const revenueData = [
+  { name: "Q1", uv: 4000, pv: 2400 },
+  { name: "Q2", uv: 3000, pv: 1398 },
+  { name: "Q3", uv: 2000, pv: 9800 },
+  { name: "Q4", uv: 2780, pv: 3908 },
+];
+
+const usageData = [
+  { name: "Jan", value: 31 },
+  { name: "Feb", value: 42 },
+  { name: "Mar", value: 36 },
+  { name: "Apr", value: 51 },
+  { name: "May", value: 49 },
+  { name: "Jun", value: 62 },
+  { name: "Jul", value: 57 },
+];
+
+function cx(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+const HeaderLink = ({ children, active = false }) => (
+  <a
+    href="#"
+    className={cx(
+      "px-3 py-2 text-sm font-medium rounded-xl transition-colors",
+      active
+        ? "bg-black/10 text-black dark:text-white dark:bg-white/10"
+        : "text-black/80 hover:bg-black/10 dark:text-white/80 dark:hover:bg-white/10"
+    )}
+  >
+    {children}
+  </a>
+);
+
+const NavItem = ({ icon: Icon, label, collapsed }) => (
+  <div
+    className={cx(
+      "group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium",
+      "hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+    )}
+  >
+    <Icon className="h-4 w-4" />
+    {!collapsed && <span className="truncate">{label}</span>}
+    {collapsed && <span className="sr-only">{label}</span>}
+  </div>
+);
+
+export default function AdminLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [theme, setTheme] = useState("light");
+  const [language, setLanguage] = useState("en");
+  const [role, setRole] = useState("Admin");
+  const [org, setOrg] = useState("Acme Corp");
+  const [authed, setAuthed] = useState(true);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") root.classList.add("dark");
+    else root.classList.remove("dark");
+  }, [theme]);
+
+  const gradientStyle = useMemo(
+    () => ({
+      backgroundImage: `linear-gradient(135deg, ${BRAND_ORANGE} 0%, ${BRAND_YELLOW} 100%)`,
+    }),
+    []
+  );
+
+  return (
+    <div className="min-h-screen w-full bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      {/* Top Accent Bar */}
+      <div className="h-1 w-full" style={gradientStyle} />
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-black/5 dark:border-white/10 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-neutral-950/60 bg-white/80 dark:bg-neutral-950/80">
+        <div className="mx-auto flex max-w-[1400px] items-center gap-3 px-3 py-2 md:gap-6 md:px-6">
+          {/* Left: burger + logo + org */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <Button variant="ghost" size="icon" aria-label="Toggle sidebar" onClick={() => setSidebarOpen((s) => !s)}>
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <div
+                className="h-8 w-8 rounded-xl shadow-inner"
+                style={{ background: BRAND_ORANGE }}
+                aria-hidden
+              />
+              <div className="hidden sm:block">
+                <div className="text-sm font-semibold leading-tight">{org}</div>
+                <div className="text-[11px] text-neutral-500 dark:text-neutral-400">Next‑Gen Analytics Suite</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Middle: primary nav & menus */}
+          <nav className="hidden md:flex items-center gap-2">
+            <HeaderLink active>Overview</HeaderLink>
+            <HeaderLink>Projects</HeaderLink>
+            <HeaderLink>Teams</HeaderLink>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2 rounded-xl">
+                  Solutions <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-56">
+                <DropdownMenuLabel>By Need</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2">
+                  <Activity className="h-4 w-4" /> Performance Monitoring
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <BarChart3 className="h-4 w-4" /> Revenue Insights
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <LineChartIcon className="h-4 w-4" /> Forecasting
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2 rounded-xl">
+                  Resources <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-56">
+                <DropdownMenuItem>Docs</DropdownMenuItem>
+                <DropdownMenuItem>Tutorials</DropdownMenuItem>
+                <DropdownMenuItem>API</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
+
+          {/* Right: actions */}
+          <div className="ml-auto flex items-center gap-1 md:gap-2">
+            <div className="hidden md:flex items-center gap-2 rounded-xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-neutral-900/60 px-2 py-1.5">
+              <Search className="h-4 w-4 opacity-60" />
+              <Input className="h-7 border-0 bg-transparent focus-visible:ring-0" placeholder="Search…" />
+            </div>
+
+            <Button variant="ghost" size="icon" aria-label="Notifications" className="rounded-xl">
+              <Bell className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Alerts" className="rounded-xl">
+              <AlertTriangle className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Messages" className="rounded-xl">
+              <Mail className="h-5 w-5" />
+            </Button>
+
+            {/* Language */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="rounded-xl gap-2">
+                  <Languages className="h-4 w-4" /> {language.toUpperCase()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {["en", "es", "de", "fr", "hi"].map((lng) => (
+                  <DropdownMenuCheckboxItem
+                    key={lng}
+                    checked={language === lng}
+                    onCheckedChange={() => setLanguage(lng)}
+                  >
+                    {lng.toUpperCase()}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Role */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="rounded-xl gap-2">
+                  <Shield className="h-4 w-4" /> {role}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {["Viewer", "Analyst", "Admin"].map((r) => (
+                  <DropdownMenuCheckboxItem key={r} checked={role === r} onCheckedChange={() => setRole(r)}>
+                    {r}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Organization */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="rounded-xl gap-2">
+                  <Building2 className="h-4 w-4" /> {org}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {["Acme Corp", "Wayfinder LLC", "Globex"].map((o) => (
+                  <DropdownMenuCheckboxItem key={o} checked={org === o} onCheckedChange={() => setOrg(o)}>
+                    {o}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Theme */}
+            <Button
+              variant="ghost"
+              className="rounded-xl gap-2"
+              onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+            >
+              <Palette className="h-4 w-4" />
+              <span className="hidden sm:inline">Theme</span>
+              {theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+
+            {/* Profile */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="rounded-xl gap-2">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src="https://i.pravatar.cc/100?img=5" alt="Profile" />
+                    <AvatarFallback>SH</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline text-sm">S. Hebbar</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-56">
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2"><User className="h-4 w-4" /> Profile</DropdownMenuItem>
+                <DropdownMenuItem className="gap-2"><Settings className="h-4 w-4" /> Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {authed ? (
+                  <DropdownMenuItem className="gap-2" onClick={() => setAuthed(false)}>
+                    <LogOut className="h-4 w-4" /> Logout
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem className="gap-2" onClick={() => setAuthed(true)}>
+                    <LogIn className="h-4 w-4" /> Login
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-4 px-3 py-4 md:gap-6 md:px-6">
+        {/* Left Sidebar */}
+        <aside className="col-span-12 sm:col-span-4 md:col-span-3 lg:col-span-2">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={String(sidebarOpen)}
+              initial={{ width: sidebarOpen ? 64 : 52, opacity: 0 }}
+              animate={{ width: sidebarOpen ? 256 : 72, opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: "spring", stiffness: 240, damping: 26 }}
+              className="sticky top-14 rounded-2xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-neutral-900/70 backdrop-blur p-2"
+            >
+              <div className="flex items-center justify-between px-2 py-2">
+                <span className={cx("text-xs font-semibold uppercase tracking-wide", sidebarOpen ? "opacity-80" : "sr-only")}>Navigation</span>
+                <Switch checked={sidebarOpen} onCheckedChange={setSidebarOpen} aria-label="Collapse sidebar" />
+              </div>
+              <nav className="space-y-1">
+                <NavItem icon={Home} label="Home" collapsed={!sidebarOpen} />
+                <NavItem icon={Layers} label="Workstreams" collapsed={!sidebarOpen} />
+                <NavItem icon={Database} label="Data Sources" collapsed={!sidebarOpen} />
+                <NavItem icon={FolderOpen} label="Files" collapsed={!sidebarOpen} />
+              </nav>
+              <div className="mt-3 rounded-xl p-3" style={{ background: `${BRAND_YELLOW}22` }}>
+                <div className="text-xs font-semibold mb-1">Status</div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: BRAND_ORANGE }} />
+                  <span className="text-xs opacity-80">All systems operational</span>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </aside>
+
+        {/* Main Content */}
+        <main className="col-span-12 sm:col-span-8 md:col-span-9 lg:col-span-10 space-y-6">
+          {/* KPI Row */}
+          <div className="grid grid-cols-12 gap-4">
+            {[
+              { title: "Active Users", value: "4,872", delta: "+8.2%" },
+              { title: "MRR", value: "$128k", delta: "+3.1%" },
+              { title: "Churn", value: "1.3%", delta: "-0.2%" },
+              { title: "NPS", value: "57", delta: "+5" },
+            ].map((kpi) => (
+              <Card key={kpi.title} className="col-span-12 sm:col-span-6 xl:col-span-3 rounded-2xl border-black/5 dark:border-white/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center justify-between">
+                    {kpi.title}
+                    <Badge className="rounded-full" style={{ background: BRAND_ORANGE }}>{kpi.delta}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-semibold">{kpi.value}</div>
+                  <div className="mt-3 h-24">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={kpiData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="kpiGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={BRAND_ORANGE} stopOpacity={0.7} />
+                            <stop offset="95%" stopColor={BRAND_ORANGE} stopOpacity={0.05} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeOpacity={0.1} vertical={false} />
+                        <XAxis dataKey="name" hide />
+                        <YAxis hide />
+                        <Tooltip cursor={{ stroke: BRAND_ORANGE }} />
+                        <Area type="monotone" dataKey="value" stroke={BRAND_ORANGE_DARK} fill="url(#kpiGradient)" strokeWidth={2} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid grid-cols-12 gap-4">
+            <Card className="col-span-12 lg:col-span-7 rounded-2xl border-black/5 dark:border-white/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><LineChartIcon className="h-5 w-5" /> Usage Trend</CardTitle>
+              </CardHeader>
+              <CardContent className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={usageData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeOpacity={0.1} vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="value" stroke={BRAND_ORANGE} strokeWidth={3} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-12 lg:col-span-5 rounded-2xl border-black/5 dark:border-white/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><BarChart3 className="h-5 w-5" /> Revenue by Quarter</CardTitle>
+              </CardHeader>
+              <CardContent className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={revenueData}>
+                    <CartesianGrid strokeOpacity={0.1} vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="uv" fill={BRAND_ORANGE} radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="pv" fill={BRAND_YELLOW} radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Activity & Feed */}
+          <div className="grid grid-cols-12 gap-4">
+            <Card className="col-span-12 xl:col-span-7 rounded-2xl border-black/5 dark:border-white/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><PieChartIcon className="h-5 w-5" /> Key Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  {[
+                    { t: "Deployment", d: "v2.8.4 rolled out to production", c: "Just now" },
+                    { t: "Data Sync", d: "Warehouse refresh completed", c: "8 min ago" },
+                    { t: "Alert", d: "Spike detected in EU region", c: "1 hr ago" },
+                  ].map((e, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: BRAND_ORANGE }} />
+                      <div>
+                        <div className="text-sm font-semibold">{e.t}</div>
+                        <div className="text-sm opacity-80">{e.d}</div>
+                        <div className="text-xs opacity-60">{e.c}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-12 xl:col-span-5 rounded-2xl border-black/5 dark:border-white/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" /> Inbox</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="rounded-xl border border-black/5 dark:border-white/10 p-3 hover:shadow-sm transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium">Message Subject #{i}</div>
+                        <Badge variant="secondary" className="rounded-full">New</Badge>
+                      </div>
+                      <p className="text-sm opacity-80">Short preview line for the incoming message goes here.</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="mt-6 border-t border-black/5 dark:border-white/10 bg-white/60 dark:bg-neutral-900/60">
+        <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-3 py-4 md:flex-row md:px-6">
+          <div className="text-sm opacity-80">© {new Date().getFullYear()} {org}. All rights reserved.</div>
+          <div className="flex items-center gap-2 text-sm">
+            <a href="#" className="underline-offset-4 hover:underline">Privacy</a>
+            <span>•</span>
+            <a href="#" className="underline-offset-4 hover:underline">Terms</a>
+            <span>•</span>
+            <a href="#" className="underline-offset-4 hover:underline">Status</a>
+          </div>
+        </div>
+        <div className="h-1 w-full" style={gradientStyle} />
+      </footer>
+
+      {/* Inline Style Tokens (kept tiny; use Tailwind for everything else) */}
+      <style>{`
+        :root {
+          --brand: ${BRAND_ORANGE};
+          --accent: ${BRAND_YELLOW};
+        }
+        .btn-brand { background: var(--brand); color: #111; }
+        .btn-brand:hover { background: ${BRAND_ORANGE_DARK}; }
+      `}</style>
+    </div>
+  );
+}

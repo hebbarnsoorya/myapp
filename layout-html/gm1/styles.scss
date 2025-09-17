@@ -1,0 +1,33 @@
+/* A modern SCSS file to compliment Tailwind CSS */
+
+// Variables for theming
+$primary-accent: #fc820f;
+$secondary-accent: #fcfc0f;
+
+// Basic styles for the dark/light theme
+body.light {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+body.dark {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+
+// Sidebar toggle state
+body.sidebar-collapsed #sidebar {
+  width: 6rem; // Adjust as needed
+}
+
+body.sidebar-collapsed #sidebar span {
+  display: none; // Hide text when collapsed
+}
+
+// Custom chart styles
+#revenue-chart {
+  .chart-line {
+    stroke: $primary-accent;
+    stroke-width: 2px;
+  }
+}

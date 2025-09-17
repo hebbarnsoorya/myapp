@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans flex min-h-screen">
+
+    <aside class="bg-gray-800 transition-all duration-300 ease-in-out p-4 flex flex-col items-center" id="left-nav">
+        <div class="logo-area mb-8">
+            <img src="https://via.placeholder.com/40" alt="Logo" class="rounded-full">
+            <span class="logo-name text-lg font-bold mt-2 hidden">Org Name</span>
+        </div>
+        <nav class="flex-grow">
+            <ul>
+                <li class="mb-4">
+                    <a href="#" class="nav-item flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-200">
+                        <span class="material-icons mr-3">dashboard</span>
+                        <span class="nav-text hidden">Dashboard</span>
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="#" class="nav-item flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-200">
+                        <span class="material-icons mr-3">bar_chart</span>
+                        <span class="nav-text hidden">Analytics</span>
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="#" class="nav-item flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-200">
+                        <span class="material-icons mr-3">report</span>
+                        <span class="nav-text hidden">Reports</span>
+                    </a>
+                </li>
+                </ul>
+        </nav>
+        <button id="nav-toggle" class="mt-auto p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
+            <span class="material-icons text-gray-400">chevron_left</span>
+        </button>
+    </aside>
+
+    <div class="flex-1 flex flex-col">
+        <header class="bg-gray-800 p-4 shadow-md flex justify-between items-center z-10 sticky top-0">
+            <div class="flex items-center">
+                <span class="material-icons text-2xl mr-3 cursor-pointer" id="menu-toggle">menu</span>
+                <span class="text-xl font-bold text-gray-200">Dashboard</span>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-orange-500 transition-colors duration-200">Home</a>
+                <div class="relative group">
+                    <button class="text-gray-400 hover:text-orange-500 transition-colors duration-200 flex items-center">Services <span class="material-icons ml-1 text-sm">expand_more</span></button>
+                    <div class="absolute hidden group-hover:block bg-gray-700 text-gray-200 rounded shadow-lg mt-2 w-40 z-20">
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-600">Service 1</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-600">Service 2</a>
+                    </div>
+                </div>
+                <a href="#" class="text-gray-400 hover:text-orange-500 transition-colors duration-200">About</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button class="relative">
+                    <span class="material-icons text-gray-400 hover:text-orange-500">notifications</span>
+                    <span class="absolute top-0 right-0 h-2 w-2 bg-yellow-400 rounded-full"></span>
+                </button>
+                <button>
+                    <span class="material-icons text-gray-400 hover:text-orange-500">mail</span>
+                </button>
+                <div class="relative group">
+                    <button class="flex items-center">
+                        <img src="https://via.placeholder.com/32" alt="Profile" class="rounded-full mr-2">
+                        <span class="text-gray-400 hover:text-orange-500">User</span>
+                    </button>
+                    <div class="absolute hidden group-hover:block bg-gray-700 text-gray-200 rounded shadow-lg mt-2 right-0 w-48 z-20">
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-600">Profile Settings</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-600">Switch Theme</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-600">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-200 mb-4">Sales Performance Trend</h3>
+                <canvas id="sales-chart" class="w-full h-64"></canvas>
+            </div>
+            <div class="bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-200 mb-4">User Engagement</h3>
+                <canvas id="engagement-chart" class="w-full h-64"></canvas>
+            </div>
+            <div class="bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-200 mb-4">Revenue by Region</h3>
+                <canvas id="revenue-chart" class="w-full h-64"></canvas>
+            </div>
+        </main>
+        
+        <footer class="bg-gray-800 p-4 text-center text-gray-500 mt-auto">
+            © 2023 My Org. All Rights Reserved.
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
