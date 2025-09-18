@@ -1,418 +1,262 @@
-Write-Output "=== Setting up ppl-management-ui React project with charts + store ==="
+# ==============================
+# Setup Script for FullScale App (Next.js + Tailwind + shadcn/ui)
+# With robust folder creation + mock charts + calendar grid
+# ==============================
 
-# ----------------------------
-# Step 1: Install dependencies
-# ----------------------------
-npm install react-router-dom framer-motion lucide-react recharts clsx
-npm install -D tailwindcss postcss autoprefixer sass
-npm install -D jest @types/jest jest-environment-jsdom ts-jest babel-jest babel-preset-react-app `
-  @testing-library/react @testing-library/jest-dom @testing-library/user-event identity-obj-proxy
-npm install -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin `
-  eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier prettier
+$ErrorActionPreference = "Stop"
 
-# ----------------------------
-# Step 2: Tailwind + Configs
-# ----------------------------
-npx tailwindcss init -p
-
-@"
-import type { Config } from 'tailwindcss';
-
-export default {
-  darkMode: 'class',
-  content: ['./index.html', './src/**/*.{ts,tsx,css,scss}'],
-  theme: { extend: {} },
-  plugins: [],
-} satisfies Config;
-"@ | Set-Content -Path "tailwind.config.ts" -Encoding UTF8
-
-@"
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-};
-"@ | Set-Content -Path "postcss.config.js" -Encoding UTF8
-
-@"
-module.exports = {
-  root: true,
-  env: { browser: true, es2022: true, jest: true },
-  parser: '@typescript-eslint/parser',
-  parserOptions: { ecmaFeatures: { jsx: true } },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
-  extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended',
-    'prettier',
-  ],
-  settings: { react: { version: 'detect' } },
-};
-"@ | Set-Content -Path ".eslintrc.cjs" -Encoding UTF8
-
-@"
-{
-  "singleQuote": true,
-  "trailingComma": "all",
-  "printWidth": 100
+function Write-File {
+    param(
+        [Parameter(Mandatory=$true)][string]$Path,
+        [Parameter(Mandatory=$true)][string]$Content
+    )
+    $dir = Split-Path $Path
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    }
+    Set-Content -Path $Path -Value $Content -Encoding UTF8
 }
-"@ | Set-Content -Path ".prettierrc" -Encoding UTF8
 
-@"
-import type { Config } from 'jest';
+Write-Host "Creating Next.js project..."
+npx create-next-app@latest fullscale-app --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --no-git
 
-const config: Config = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\\\.(css|scss)$': 'identity-obj-proxy'
-  },
-};
-export default config;
-"@ | Set-Content -Path "jest.config.ts" -Encoding UTF8
+Set-Location fullscale-app
 
-@"
-import '@testing-library/jest-dom';
-"@ | Set-Content -Path "setupTests.ts" -Encoding UTF8
+Write-Host "Installing dependencies..."
+npm install recharts framer-motion lucide-react
 
-# ----------------------------
-# Step 3: Gitignore
-# ----------------------------
-@"
-node_modules
-dist
-coverage
-.vite
-.DS_Store
-.env*
-"@ | Set-Content -Path ".gitignore" -Encoding UTF8
+Write-Host "Installing shadcn/ui..."
+npx shadcn@latest init -y
+npx shadcn@latest add button card input dropdown-menu select avatar
 
-# ----------------------------
-# Step 4: Create src/ structure
-# ----------------------------
-New-Item -ItemType Directory -Force -Path "src/components/layout" | Out-Null
-New-Item -ItemType Directory -Force -Path "src/pages" | Out-Null
-New-Item -ItemType Directory -Force -Path "src/store" | Out-Null
-New-Item -ItemType Directory -Force -Path "src/styles" | Out-Null
-New-Item -ItemType Directory -Force -Path "src/types" | Out-Null
+Write-Host "Ensuring base folders..."
+# components
+New-Item -ItemType Directory -Force -Path "src\components\layout" | Out-Null
+New-Item -ItemType Directory -Force -Path "src\components\mock" | Out-Null
+# app and route subfolders (guaranteed)
+$routes = @("analytics","reports","calendar","data","help")
+if (-not (Test-Path "src\app")) { New-Item -ItemType Directory -Force -Path "src\app" | Out-Null }
+foreach ($r in $routes) {
+    $p = "src\app\$r"
+    if (-not (Test-Path $p)) { New-Item -ItemType Directory -Force -Path $p | Out-Null }
+}
 
-# ----------------------------
-# Step 5: Starter Files
-# ----------------------------
-# main.tsx
-@"
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { AppProvider } from '@/store/AppContext';
-import App from './App';
-import '@/styles/index.css';
-import '@/styles/theme.scss';
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AppProvider>
-        <App />
-      </AppProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
-);
-"@ | Set-Content -Path "src/main.tsx" -Encoding UTF8
-
-# App.tsx
-@"
-import React from 'react';
-import HeaderBar from '@/components/layout/HeaderBar';
-import Sidebar from '@/components/layout/Sidebar';
-import FooterBar from '@/components/layout/FooterBar';
-import { useApp } from '@/store/AppContext';
-import AppRoutes from './routes';
-
-const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { state } = useApp();
-  return (
-    <div className='min-h-screen bg-gradient-to-br from-white to-zinc-100 dark:from-zinc-950 dark:to-zinc-900 text-zinc-900 dark:text-zinc-100'>
-      <HeaderBar />
-      <Sidebar />
-      <main
-        className='container mx-auto px-4'
-        style={{
-          paddingTop: 'calc(var(--header-height) + 1rem)',
-          paddingBottom: '2rem',
-          marginLeft: state.sidebarOpen ? 'var(--sidebar-width)' : 'var(--sidebar-width-collapsed)',
-          transition: 'margin-left .3s',
-        }}
-      >
-        {children}
-      </main>
-      <FooterBar />
-    </div>
-  );
-};
-
-const App: React.FC = () => <AppShell><AppRoutes /></AppShell>;
-export default App;
-"@ | Set-Content -Path "src/App.tsx" -Encoding UTF8
-
-# routes.tsx
-@"
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
-
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
-const Analytics = lazy(() => import('@/pages/Analytics'));
-const Messages = lazy(() => import('@/pages/Messages'));
-const Settings = lazy(() => import('@/pages/Settings'));
-
-const AppRoutes: React.FC = () => (
-  <Suspense fallback={<div className='p-6'>Loading…</div>}>
-    <Routes>
-      <Route path='/' element={<Dashboard />} />
-      <Route path='/analytics' element={<Analytics />} />
-      <Route path='/messages' element={<Messages />} />
-      <Route path='/settings' element={<Settings />} />
-    </Routes>
-  </Suspense>
-);
-
-export default AppRoutes;
-"@ | Set-Content -Path "src/routes.tsx" -Encoding UTF8
-
-# styles/index.css
-@"
+# ---------- Global styles ----------
+$globals = @'
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --brand-primary: #fc820f;
-  --brand-accent: #fcfc0f;
-  --header-height: 64px;
-  --sidebar-width: 220px;
-  --sidebar-width-collapsed: 60px;
+  --brand-1: #fc820f;
+  --brand-2: #fcfc0f;
 }
-.brand-gradient {
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
-}
-"@ | Set-Content -Path "src/styles/index.css" -Encoding UTF8
+body { @apply bg-gray-50 text-gray-900; }
+'@
+Write-File "src\app\globals.css" $globals
 
-# styles/theme.scss
-@"
-$brand-primary: #fc820f;
-$brand-accent: #fcfc0f;
+# ---------- Next.js layout.tsx (wraps everything with AdminLayout) ----------
+$rootLayout = @'
+import type { Metadata } from "next";
+import "./globals.css";
+import AdminLayout from "@/components/layout/AdminLayout";
 
-:root {
-  --brand-primary: #{$brand-primary};
-  --brand-accent: #{$brand-accent};
-}
-"@ | Set-Content -Path "src/styles/theme.scss" -Encoding UTF8
-
-# ----------------------------
-# Step 6: Store (Context + Reducer)
-# ----------------------------
-# types/index.ts
-@"
-export type Theme = 'light' | 'dark';
-export interface AppState {
-  theme: Theme;
-  sidebarOpen: boolean;
-  notifications: number;
-}
-export type AppAction =
-  | { type: 'TOGGLE_SIDEBAR' }
-  | { type: 'SET_THEME'; payload: Theme }
-  | { type: 'SET_NOTIFICATIONS'; payload: number };
-"@ | Set-Content -Path "src/types/index.ts" -Encoding UTF8
-
-# store/appReducer.ts
-@"
-import type { AppAction, AppState } from '@/types';
-
-export const initialState: AppState = {
-  theme: 'light',
-  sidebarOpen: true,
-  notifications: 3,
+export const metadata: Metadata = {
+  title: "FullScale App",
+  description: "Enterprise mock UI with charts & tables",
 };
 
-export function appReducer(state: AppState, action: AppAction): AppState {
-  switch (action.type) {
-    case 'TOGGLE_SIDEBAR':
-      return { ...state, sidebarOpen: !state.sidebarOpen };
-    case 'SET_THEME':
-      return { ...state, theme: action.payload };
-    case 'SET_NOTIFICATIONS':
-      return { ...state, notifications: action.payload };
-    default:
-      return state;
-  }
-}
-"@ | Set-Content -Path "src/store/appReducer.ts" -Encoding UTF8
-
-# store/AppContext.tsx
-@"
-import React, { createContext, useContext, useReducer } from 'react';
-import { appReducer, initialState } from './appReducer';
-import type { AppAction, AppState } from '@/types';
-
-interface AppContextValue { state: AppState; dispatch: React.Dispatch<AppAction>; }
-const AppContext = createContext<AppContextValue | null>(null);
-
-export function useApp() {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used within AppProvider');
-  return ctx;
-}
-
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(appReducer, initialState);
-  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
-};
-"@ | Set-Content -Path "src/store/AppContext.tsx" -Encoding UTF8
-
-# ----------------------------
-# Step 7: Layout Components
-# ----------------------------
-# HeaderBar.tsx
-@"
-import React from 'react';
-import { useApp } from '@/store/AppContext';
-
-const HeaderBar: React.FC = () => {
-  const { state, dispatch } = useApp();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <header className='fixed top-0 inset-x-0 h-[var(--header-height)] border-b bg-white/80 backdrop-blur flex items-center justify-between px-4'>
-      <div className='font-bold'>OurP UI</div>
-      <div className='flex gap-4 items-center'>
-        <button onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })} className='px-2 py-1 border rounded'>
-          {state.sidebarOpen ? 'Hide' : 'Show'} Sidebar
-        </button>
-        <span className='text-sm'>🔔 {state.notifications}</span>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <AdminLayout>{children}</AdminLayout>
+      </body>
+    </html>
+  );
+}
+'@
+Write-File "src\app\layout.tsx" $rootLayout
+
+# ---------- AdminLayout + parts ----------
+$adminLayout = @'
+"use client";
+import { useState } from "react";
+import Header from "@/components/layout/Header";
+import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer";
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <div className="flex flex-1">
+        <Sidebar open={sidebarOpen} />
+        <main className="flex-1 p-4">{children}</main>
       </div>
+      <Footer />
+    </div>
+  );
+}
+'@
+Write-File "src\components\layout\AdminLayout.tsx" $adminLayout
+
+$header = @'
+"use client";
+import { Menu } from "lucide-react";
+
+export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+  return (
+    <header className="bg-white border-b shadow-sm p-3 flex items-center justify-between">
+      <button onClick={onToggleSidebar} className="p-2 hover:bg-gray-100 rounded" aria-label="Toggle sidebar">
+        <Menu className="h-5 w-5" />
+      </button>
+      <h1 className="text-lg font-semibold">FullScale App</h1>
+      <div className="text-sm text-gray-500">User ▾</div>
     </header>
   );
-};
-export default HeaderBar;
-"@ | Set-Content -Path "src/components/layout/HeaderBar.tsx" -Encoding UTF8
+}
+'@
+Write-File "src\components\layout\Header.tsx" $header
 
-# Sidebar.tsx
-@"
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { useApp } from '@/store/AppContext';
+$sidebar = @'
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-const Sidebar: React.FC = () => {
-  const { state } = useApp();
+const navItems = [
+  { path: "/", label: "Dashboard" },
+  { path: "/analytics", label: "Analytics" },
+  { path: "/reports", label: "Reports" },
+  { path: "/calendar", label: "Calendar" },
+  { path: "/data", label: "Data" },
+  { path: "/help", label: "Help" },
+];
+
+export default function Sidebar({ open }: { open: boolean }) {
+  const pathname = usePathname();
   return (
-    <aside className={`fixed top-[var(--header-height)] left-0 bottom-0 border-r bg-white/80 backdrop-blur transition-all duration-300 ${state.sidebarOpen ? 'w-[var(--sidebar-width)]' : 'w-[var(--sidebar-width-collapsed)]'}`}>
-      <nav className='flex flex-col gap-3 p-3'>
-        <NavLink to='/'>Dashboard</NavLink>
-        <NavLink to='/analytics'>Analytics</NavLink>
-        <NavLink to='/messages'>Messages</NavLink>
-        <NavLink to='/settings'>Settings</NavLink>
+    <aside className={`bg-white border-r transition-all ${open ? "w-64" : "w-16"}`}>
+      <nav className="flex flex-col p-2">
+        {navItems.map((item) => (
+          <Link
+            key={item.path}
+            href={item.path}
+            className={`p-2 rounded hover:bg-orange-100 ${pathname === item.path ? "bg-orange-200 font-semibold" : ""}`}
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
     </aside>
   );
-};
-export default Sidebar;
-"@ | Set-Content -Path "src/components/layout/Sidebar.tsx" -Encoding UTF8
+}
+'@
+Write-File "src\components\layout\Sidebar.tsx" $sidebar
 
-# FooterBar.tsx
-@"
-import React from 'react';
+$footer = @'
+export default function Footer() {
+  return (
+    <footer className="bg-white border-t p-3 text-xs text-gray-500 flex justify-between">
+      <span>© {new Date().getFullYear()} FullScale Corp</span>
+      <span>Privacy · Terms</span>
+    </footer>
+  );
+}
+'@
+Write-File "src\components\layout\Footer.tsx" $footer
 
-const FooterBar: React.FC = () => (
-  <footer className='border-t bg-white/80 text-center py-2 mt-6'>
-    © $(Get-Date -Format yyyy) OurP UI
-  </footer>
-);
-export default FooterBar;
-"@ | Set-Content -Path "src/components/layout/FooterBar.tsx" -Encoding UTF8
+# ---------- Mock data ----------
+$mockData = @'
+export const mockKpis = [
+  { title: "Revenue", value: "$124k", sub: "↑ 12.5% MoM" },
+  { title: "Active Users", value: "8,243", sub: "↑ 4.1% WoW" },
+  { title: "Conversion", value: "3.42%", sub: "↓ 0.2% DoD" },
+  { title: "Tickets", value: "54 open", sub: "SLAs: 96%" },
+];
 
-# ----------------------------
-# Step 8: Pages (with Charts)
-# ----------------------------
-# Dashboard.tsx
-@"
-import React from 'react';
-import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-
-const data = Array.from({ length: 24 }).map((_, i) => ({
-  hour: `${i}:00`,
-  value: Math.round(20 + Math.sin(i/3) * 15 + Math.random() * 10),
+export const mockChartData = Array.from({ length: 12 }).map((_, i) => ({
+  name: `M${i + 1}`,
+  revenue: Math.round(200 + Math.random() * 800),
+  users: Math.round(50 + Math.random() * 200),
 }));
 
-const Dashboard: React.FC = () => (
-  <div className='p-6'>
-    <h1 className='text-xl font-bold mb-4'>Dashboard</h1>
-    <div className='h-64 border rounded bg-white/60'>
-      <ResponsiveContainer width='100%' height='100%'>
-        <AreaChart data={data}>
-          <CartesianGrid strokeDasharray='3 3' />
-          <XAxis dataKey='hour' />
-          <YAxis />
-          <Tooltip />
-          <Area type='monotone' dataKey='value' stroke='#fc820f' fill='#fc820f55' />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-);
-export default Dashboard;
-"@ | Set-Content -Path "src/pages/Dashboard.tsx" -Encoding UTF8
+export const mockProjects = [
+  { id: 1, project: "Project A", owner: "Ava", status: "Active", progress: 70 },
+  { id: 2, project: "Project B", owner: "Ben", status: "Blocked", progress: 45 },
+  { id: 3, project: "Project C", owner: "Cara", status: "Review", progress: 60 },
+];
+'@
+Write-File "src\components\mock\mockData.ts" $mockData
 
-# Analytics.tsx
-@"
-import React from 'react';
-const Analytics: React.FC = () => (
-  <div className='p-6'>
-    <h1 className='text-xl font-bold mb-4'>Analytics</h1>
-    <p>📊 Analytics page content here.</p>
-  </div>
-);
-export default Analytics;
-"@ | Set-Content -Path "src/pages/Analytics.tsx" -Encoding UTF8
+# ---------- Dashboard (KPIs + charts + table) ----------
+$dashboard = @'
+"use client";
+import { mockKpis, mockProjects, mockChartData } from "@/components/mock/mockData";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts";
 
-# Messages.tsx
-@"
-import React from 'react';
-const Messages: React.FC = () => (
-  <div className='p-6'>
-    <h1 className='text-xl font-bold mb-4'>Messages</h1>
-    <ul className='list-disc pl-6'>
-      <li>Welcome to the portal</li>
-      <li>Your weekly report is ready</li>
-      <li>Update your profile</li>
-    </ul>
-  </div>
-);
-export default Messages;
-"@ | Set-Content -Path "src/pages/Messages.tsx" -Encoding UTF8
-
-# Settings.tsx
-@"
-import React from 'react';
-import { useApp } from '@/store/AppContext';
-
-const Settings: React.FC = () => {
-  const { state, dispatch } = useApp();
+export default function Page() {
   return (
-    <div className='p-6'>
-      <h1 className='text-xl font-bold mb-4'>Settings</h1>
-      <p>Theme: {state.theme}</p>
-      <button onClick={() => dispatch({ type: 'SET_THEME', payload: state.theme === 'light' ? 'dark' : 'light' })} className='px-3 py-2 border rounded mt-2'>
-        Toggle Theme
-      </button>
-    </div>
-  );
-};
-export default Settings;
-"@ | Set-Content -Path "src/pages/Settings.tsx" -Encoding UTF8
+    <div className="space-y-6">
+      <h1 className="text-xl font-bold">Dashboard</h1>
 
-Write-Output "=== ✅ Setup complete! ==="
-Write-Output "Run 'npm run dev' and open http://localhost:5173 to see charts + store in action"
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {mockKpis.map((kpi) => (
+          <div key={kpi.title} className="p-4 bg-white rounded shadow">
+            <div className="text-sm text-gray-500">{kpi.title}</div>
+            <div className="text-2xl font-bold">{kpi.value}</div>
+            <div className="text-xs text-gray-400">{kpi.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 p-4 bg-white rounded shadow">
+          <h2 className="font-semibold mb-2">Monthly Revenue & Users</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={mockChartData}>
+              <defs>
+                <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#fc820f" stopOpacity={0.6} />
+                  <stop offset="95%" stopColor="#fc820f" stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Area type="monotone" dataKey="revenue" stroke="#fc820f" fill="url(#rev)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="p-4 bg-white rounded shadow">
+          <h2 className="font-semibold mb-2">Quarterly Breakdown</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={[{ q: "Q1", value: 420 }, { q: "Q2", value: 560 }, { q: "Q3", value: 610 }, { q: "Q4", value: 720 }]}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="q" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#fc820f" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Projects Table */}
+      <div className="p-4 bg-white rounded shadow">
+        <h2 className="font-semibold mb-2">Projects</h2>
+        <table className="w-full text-sm">
+          <thead><tr><th>ID</th><th>Project</th><th>Owner</th><th>Status</th><th>Progress</th></tr></thead>
+          <tbody>
+            {mockProjects.map((p) => (
+              <tr key={p.id} className="border-t">
+                <td>{p.id}</td>
+                <td>{p.project}</td>
+                <td>{p.owner}</td>
+                <td>{p.status}</td>
+                <td>{p.progress}%</td>
+              </tr>

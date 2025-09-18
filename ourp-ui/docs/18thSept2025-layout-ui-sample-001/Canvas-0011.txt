@@ -1,0 +1,539 @@
+import React, { useMemo, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  Bell,
+  BellRing,
+  AlertTriangle,
+  Mail,
+  User,
+  Settings,
+  Sun,
+  Moon,
+  Languages,
+  Building2,
+  Shield,
+  Palette,
+  ChevronDown,
+  LogIn,
+  LogOut,
+  LayoutDashboard,
+  BarChart3,
+  Table2,
+  Calendar,
+  FileText,
+  HelpCircle,
+  Search,
+} from "lucide-react";
+
+// Fallback: Some lucide-react versions may not export BellRing. Use Bell as a safe fallback.
+const RingIcon = (BellRing as any) ?? Bell;
+
+// shadcn/ui components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+} from "recharts";
+
+// ---------- Demo Data ----------
+const activity = Array.from({ length: 12 }).map((_, i) => ({
+  name: `M${i + 1}`,
+  revenue: Math.round(200 + Math.random() * 800),
+  users: Math.round(50 + Math.random() * 200),
+}));
+
+const tableData = Array.from({ length: 7 }).map((_, i) => ({
+  id: i + 1,
+  project: `Project ${String.fromCharCode(65 + i)}`,
+  owner: ["Ava", "Ben", "Cara", "Dan", "Ella", "Finn", "Gia"][i],
+  status: ["Active", "Blocked", "Review", "Planning", "Active", "Active", "Done"][i],
+  progress: Math.round(30 + Math.random() * 70),
+}));
+
+// ---------- Styles via CSS Variables ----------
+const ThemeVariables = () => (
+  <style>{`
+    :root {
+      --brand-1: #fc820f; /* primary orange */
+      --brand-2: #fcfc0f; /* sunshine yellow */
+      --brand-ink: #0f172a; /* slate-900 */
+      --surface: 255, 255, 255;
+      --muted: 245, 245, 244;
+      --ring: var(--brand-1);
+    }
+    [data-theme="sunset"] {
+      --brand-1: #fc820f;
+      --brand-2: #ffd84d; /* softened yellow for a11y */
+      --brand-ink: #0b1220;
+      --surface: 255, 255, 255;
+      --muted: 247, 247, 245;
+    }
+    [data-theme="dark"] {
+      --brand-1: #ff9933; /* warm orange for dark */
+      --brand-2: #f4f40f;
+      --brand-ink: 255, 255, 255;
+      --surface: 10, 12, 16;
+      --muted: 17, 20, 24;
+    }
+    .brand-gradient { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); }
+    .ring-brand:focus { outline: 2px solid var(--brand-1); outline-offset: 2px; }
+  `}</style>
+);
+
+// ---------- Layout Component ----------
+export default function AdminLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [theme, setTheme] = useState("sunset");
+  const [language, setLanguage] = useState("en");
+  const [role, setRole] = useState("admin");
+  const [org, setOrg] = useState("Acme Corp");
+
+  const nav = useMemo(
+    () => [
+      { label: "Dashboard", icon: <LayoutDashboard size={18} />, href: "#" },
+      { label: "Analytics", icon: <BarChart3 size={18} />, href: "#analytics" },
+      { label: "Reports", icon: <FileText size={18} />, href: "#reports" },
+      { label: "Calendar", icon: <Calendar size={18} />, href: "#calendar" },
+      { label: "Data", icon: <Table2 size={18} />, href: "#data" },
+      { label: "Help", icon: <HelpCircle size={18} />, href: "#help" },
+    ],
+    []
+  );
+
+  // ---------- Dev self-tests (non-invasive) ----------
+  useEffect(() => {
+    const tests: { name: string; pass: boolean; details?: string }[] = [];
+    try {
+      // Original tests
+      tests.push({ name: "activity has 12 points", pass: activity.length === 12 });
+      tests.push({ name: "tableData has 7 rows", pass: tableData.length === 7 });
+      const brand1 = getComputedStyle(document.documentElement).getPropertyValue("--brand-1").trim();
+      tests.push({ name: "CSS var --brand-1 is set", pass: !!brand1, details: brand1 });
+
+      // Fixed: forwardRef components are not typeof "function". Instead, verify renderability using React.isValidElement
+      const ringElement = React.createElement(RingIcon as any, { className: "h-3.5 w-3.5" });
+      tests.push({ name: "Ring icon is renderable", pass: React.isValidElement(ringElement) });
+
+      // Additional tests
+      tests.push({ name: "nav has 6 items", pass: nav.length === 6 });
+      tests.push({ name: "chart keys present", pass: Object.keys(activity[0]).sort().join(",") === ["name","revenue","users"].join(",") });
+      const brand2 = getComputedStyle(document.documentElement).getPropertyValue("--brand-2").trim();
+      tests.push({ name: "CSS var --brand-2 is set", pass: !!brand2, details: brand2 });
+    } catch (e) {
+      console.error("Self-tests encountered an error:", e);
+    } finally {
+      const allPass = tests.every((t) => t.pass);
+      console.group("AdminLayout self-tests");
+      for (const t of tests) console[t.pass ? "log" : "error"](`${t.pass ? "PASS" : "FAIL"} - ${t.name}${t.details ? ` (${t.details})` : ""}`);
+      console.groupEnd();
+      if (!allPass) console.warn("One or more self-tests failed. Check details above.");
+    }
+  }, [nav]);
+
+  return (
+    <div className="min-h-screen" data-theme={theme}>
+      <ThemeVariables />
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-black/40 dark:border-zinc-800">
+        <div className="flex items-center gap-3 px-3 sm:px-4 py-2">
+          {/* Left cluster */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              className="h-9 w-9 p-0"
+              onClick={() => setSidebarOpen((s) => !s)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="h-9 w-9 rounded-xl brand-gradient shadow" />
+            <div className="hidden sm:block">
+              <div className="text-sm font-semibold tracking-tight text-zinc-800 dark:text-zinc-100">{org}</div>
+              <div className="text-xs text-zinc-500">Organization</div>
+            </div>
+          </div>
+
+          {/* Middle cluster: primary nav & search */}
+          <div className="ml-2 flex-1 flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-1">
+              {/* Mixed: some dropdowns, some direct links */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="gap-1">
+                    Products <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuLabel>Products</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>New</DropdownMenuItem>
+                  <DropdownMenuItem>Browse</DropdownMenuItem>
+                  <DropdownMenuItem>Categories</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {nav.slice(0, 2).map((item) => (
+                <Button key={item.label} variant="ghost" className="gap-2">
+                  {item.icon}
+                  {item.label}
+                </Button>
+              ))}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="gap-1">
+                    More <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {nav.slice(2).map((item) => (
+                    <DropdownMenuItem key={item.label} className="gap-2">
+                      {item.icon}
+                      {item.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </nav>
+
+            <div className="flex-1 max-w-lg ml-2 hidden sm:flex">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <Input className="pl-9" placeholder="Search…" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right cluster: notifications, profile, switches */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <IconPill icon={<Bell className="h-4 w-4" />} label="9" />
+            <IconPill icon={<AlertTriangle className="h-4 w-4" />} label="2" />
+            <IconPill icon={<Mail className="h-4 w-4" />} label="3" />
+
+            {/* Switchers */}
+            <div className="hidden lg:flex items-center gap-2">
+              <LabeledSelect icon={<Languages className="h-4 w-4" />} value={language} setValue={setLanguage} label="Lang">
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="es">Español</SelectItem>
+                <SelectItem value="de">Deutsch</SelectItem>
+                <SelectItem value="hi">हिन्दी</SelectItem>
+              </LabeledSelect>
+              <LabeledSelect icon={<Shield className="h-4 w-4" />} value={role} setValue={setRole} label="Role">
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="manager">Manager</SelectItem>
+                <SelectItem value="analyst">Analyst</SelectItem>
+                <SelectItem value="viewer">Viewer</SelectItem>
+              </LabeledSelect>
+              <LabeledSelect icon={<Building2 className="h-4 w-4" />} value={org} setValue={setOrg} label="Org">
+                <SelectItem value="Acme Corp">Acme Corp</SelectItem>
+                <SelectItem value="Globex">Globex</SelectItem>
+                <SelectItem value="Initech">Initech</SelectItem>
+              </LabeledSelect>
+            </div>
+
+            {/* Theme Switch */}
+            <Button
+              variant="ghost"
+              className="h-9 w-9 p-0"
+              title="Switch theme"
+              onClick={() => setTheme((t) => (t === "sunset" ? "dark" : "sunset"))}
+            >
+              {theme === "sunset" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </Button>
+
+            {/* Profile */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-1">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>SH</AvatarFallback>
+                    </Avatar>
+                    <div className="hidden sm:block text-left">
+                      <div className="text-sm font-medium">Soorya Hebbar</div>
+                      <div className="text-xs text-zinc-500">{role} • {language.toUpperCase()}</div>
+                    </div>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <User className="h-4 w-4" /> Profile
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2"><Settings className="h-4 w-4" /> Settings</DropdownMenuItem>
+                <DropdownMenuItem className="gap-2"><Palette className="h-4 w-4" /> Appearance</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2"><LogIn className="h-4 w-4" /> Login</DropdownMenuItem>
+                <DropdownMenuItem className="gap-2"><LogOut className="h-4 w-4" /> Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div className="flex min-h-[calc(100vh-56px)] bg-[rgb(var(--muted))]">
+        {/* Sidebar */}
+        <AnimatePresence initial={false}>
+          {sidebarOpen && (
+            <motion.aside
+              initial={{ x: -24, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -24, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="hidden md:flex w-72 shrink-0 flex-col gap-3 p-3 border-r bg-[rgb(var(--surface))] dark:border-zinc-800"
+            >
+              <div className="rounded-2xl p-3 brand-gradient text-white shadow">
+                <div className="text-sm/5 opacity-90">Welcome back</div>
+                <div className="text-lg font-semibold">{org}</div>
+              </div>
+
+              <nav className="flex flex-col gap-1">
+                {nav.map((item) => (
+                  <Button
+                    key={item.label}
+                    variant="ghost"
+                    className="justify-start gap-2 rounded-xl hover:bg-orange-50 dark:hover:bg-zinc-900"
+                  >
+                    <span className="text-zinc-600 dark:text-zinc-300">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Button>
+                ))}
+              </nav>
+
+              <div className="mt-auto rounded-xl border p-3 dark:border-zinc-800">
+                <div className="text-sm font-medium mb-1">Notifications</div>
+                <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <span>System</span>
+                  <span className="inline-flex items-center gap-1"><RingIcon className="h-3.5 w-3.5" /> 12</span>
+                </div>
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
+        {/* Collapsed rail on md- screens */}
+        {!sidebarOpen && (
+          <div className="hidden md:flex w-16 shrink-0 flex-col items-center gap-3 p-2 border-r bg-[rgb(var(--surface))] dark:border-zinc-800">
+            {nav.slice(0, 5).map((item) => (
+              <Button key={item.label} size="icon" variant="ghost" className="rounded-xl">
+                {item.icon}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        {/* Main content */}
+        <main className="flex-1 p-3 sm:p-4 lg:p-6">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+            <KpiCard title="Revenue" value="$124k" sub="↑ 12.5% MoM" />
+            <KpiCard title="Active Users" value="8,243" sub="↑ 4.1% WoW" />
+            <KpiCard title="Conversion" value="3.42%" sub="↓ 0.2% DoD" />
+            <KpiCard title="Tickets" value="54 open" sub="SLAs: 96%" />
+          </div>
+
+          {/* Charts Row */}
+          <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+            <Card className="lg:col-span-2 rounded-2xl">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Monthly Revenue & Users</span>
+                  <span className="text-xs px-2 py-1 rounded-full bg-[var(--brand-1)]/10 text-zinc-700 dark:text-zinc-200">YTD</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={activity} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--brand-1)" stopOpacity={0.6} />
+                        <stop offset="95%" stopColor="var(--brand-1)" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="revenue" stroke="var(--brand-1)" fill="url(#rev)" />
+                    <Line type="monotone" dataKey="users" stroke="var(--brand-2)" strokeWidth={2} dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle>Quarterly Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    { q: "Q1", value: 420 },
+                    { q: "Q2", value: 560 },
+                    { q: "Q3", value: 610 },
+                    { q: "Q4", value: 720 },
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="q" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="var(--brand-1)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Data table (static demo) */}
+          <Card className="mt-4 rounded-2xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Projects</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm">Export CSV</Button>
+                  <Button size="sm" className="bg-[var(--brand-1)] hover:opacity-90">Add Project</Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-zinc-500">
+                      <th className="py-2 pr-4">#</th>
+                      <th className="py-2 pr-4">Project</th>
+                      <th className="py-2 pr-4">Owner</th>
+                      <th className="py-2 pr-4">Status</th>
+                      <th className="py-2 pr-4">Progress</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tableData.map((row) => (
+                      <tr key={row.id} className="border-t border-zinc-100 dark:border-zinc-800">
+                        <td className="py-3 pr-4">{row.id}</td>
+                        <td className="py-3 pr-4 font-medium">{row.project}</td>
+                        <td className="py-3 pr-4">{row.owner}</td>
+                        <td className="py-3 pr-4">
+                          <span
+                            className="inline-flex items-center rounded-full px-2 py-0.5 text-xs bg-[var(--brand-1)]/10 text-zinc-700 dark:text-zinc-200"
+                          >
+                            {row.status}
+                          </span>
+                        </td>
+                        <td className="py-3 pr-4">
+                          <div className="h-2 w-40 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[var(--brand-1)]"
+                              style={{ width: `${row.progress}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <footer className="mt-6 text-xs text-zinc-500 flex items-center justify-between">
+            <div>© {new Date().getFullYear()} {org}. All rights reserved.</div>
+            <div className="flex items-center gap-2">
+              <a className="hover:underline" href="#privacy">Privacy</a>
+              <a className="hover:underline" href="#terms">Terms</a>
+              <a className="hover:underline" href="#status">Status</a>
+            </div>
+          </footer>
+        </main>
+      </div>
+
+      {/* Mobile bottom bar */}
+      <div className="fixed md:hidden bottom-3 inset-x-0 px-3">
+        <div className="mx-auto max-w-md rounded-2xl border bg-[rgb(var(--surface))] shadow-lg dark:border-zinc-800">
+          <div className="flex items-center justify-around p-2">
+            {nav.slice(0, 4).map((item) => (
+              <Button key={item.label} size="icon" variant="ghost" className="rounded-xl">
+                {item.icon}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Reusable UI bits ----------
+function IconPill({ icon, label }: { icon: React.ReactNode; label?: string }) {
+  return (
+    <div className="relative">
+      <Button variant="ghost" size="icon" className="h-9 w-9">
+        {icon}
+      </Button>
+      {label && (
+        <span className="absolute -top-1 -right-1 min-w-5 h-5 rounded-full bg-[var(--brand-1)] text-white text-[10px] grid place-items-center px-1">
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function LabeledSelect({ icon, value, setValue, label, children }: any) {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-zinc-500">{icon}</span>
+      <Select value={value} onValueChange={(v) => setValue(v)}>
+        <SelectTrigger className="h-9 w-[8.5rem] rounded-xl">
+          <SelectValue placeholder={label} />
+        </SelectTrigger>
+        <SelectContent className="rounded-xl">
+          {children}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function KpiCard({ title, value, sub }: { title: string; value: string; sub: string }) {
+  return (
+    <Card className="rounded-2xl border-transparent bg-[rgb(var(--surface))] shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm text-zinc-500">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-semibold tracking-tight">{value}</div>
+        <div className="text-xs text-zinc-500 mt-1">{sub}</div>
+      </CardContent>
+    </Card>
+  );
+}
