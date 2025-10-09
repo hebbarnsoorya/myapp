@@ -1,0 +1,10 @@
+/* src/styles/LeftNav.scss */
+.nav-item {
+  color: #333;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #fce7b3; /* A lighter shade of the primary color */
+    color: #000;
+  }
+}
