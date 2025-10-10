@@ -25,10 +25,10 @@ public class ProductUploadController {
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProducts(@RequestParam("file") MultipartFile file) throws IOException {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("Please select a file to upload.");
+            return ResponseEntity.badRequest().body("Empty File. Please select a file to upload.");
         }
         if (!file.getOriginalFilename().endsWith(".xlsx")) {
-            return ResponseEntity.badRequest().body("Only .xlsx files are allowed.");
+            return ResponseEntity.badRequest().body("Only .xlsx file to be uploaded.");
         }
 
         try {
@@ -36,6 +36,7 @@ public class ProductUploadController {
             System.out.println("RESULT: "+ products);
             return ResponseEntity.ok(products);
         } catch (IllegalArgumentException e) {
+            System.out.println("ERROR: "+ e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             // Log the exception
