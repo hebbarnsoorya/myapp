@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Alice Johnson",
+    "email": "alice.j@example.com",
+    "status": "Active",
+    "progress": 75,
+    "role": "Admin",
+    "createdAt": "2024-01-15"
+  },
+  {
+    "id": 2,
+    "name": "Bob Smith",
+    "email": "bob.s@example.com",
+    "status": "Inactive",
+    "progress": 20,
+    "role": "User",
+    "createdAt": "2024-02-20"
+  },
+  {
+    "id": 3,
+    "name": "Charlie Brown",
+    "email": "charlie.b@example.com",
+    "status": "Pending",
+    "progress": 90,
+    "role": "Manager",
+    "createdAt": "2024-03-01"
+  },
+  {
+    "id": 4,
+    "name": "Diana Prince",
+    "email": "diana.p@example.com",
+    "status": "Active",
+    "progress": 45,
+    "role": "User",
+    "createdAt": "2024-04-10"
+  },
+  {
+    "id": 5,
+    "name": "Eve Adams",
+    "email": "eve.a@example.com",
+    "status": "Active",
+    "progress": 88,
+    "role": "Admin",
+    "createdAt": "2024-05-05"
+  }
+]

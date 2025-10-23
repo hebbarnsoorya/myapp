@@ -1,7 +1,0 @@
-# application.yml (equivalent)
-spring:
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 110MB
-      resolve-lazily: true
