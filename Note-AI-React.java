@@ -82,6 +82,11 @@ plz draw folder/file structure. So i can be move my existing files accordingly
 
 ******************************************************************************************
 
+1. Upgrade to NextJS
+2. Impl I18n
+3. ReactTable > GenericTable
+pagination, rows per page, Sorting on Headr, Search, Export as PDF/Excel/CSV etc, Add new User button on top of the table,
+Edit the by click on Edit/View button from the Action Column, 
 
 
 ******************************************************************************************
